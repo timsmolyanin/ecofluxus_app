@@ -7,7 +7,7 @@ import serial
 import struct
 
 import list_of_mqtt_topics
-import meta_funcs
+import general_funcs
 
 from loguru import logger
 
@@ -111,7 +111,7 @@ class NextionMqttBridge(Thread):
             case "Angle":
                 ch = data_list[1]
                 value = data_list[-1]
-                meta_funcs.set_angle_position(ch, int(value))
+                general_funcs.set_angle_position(ch, int(value))
             case _:        
                 self.set_mqtt_topic_value(f"/devices/{data_list[0]}/controls/{data_list[1]}/on", data_list[-1])
     
@@ -162,29 +162,29 @@ class NextionMqttBridge(Thread):
         match topic_name[2]:
             case "wb-mai6_89":
                 ch = topic_name[-1].split()[1]
-                angle = meta_funcs.voltage_to_angle_conv(int(topic_val))
-                degree_picc = meta_funcs.get_degree_pic_id_by_angle(ch, int(angle))
+                angle = general_funcs.voltage_to_angle_conv(int(topic_val))
+                degree_picc = general_funcs.get_degree_pic_id_by_angle(ch, int(angle))
                 match ch:
                     case "1":
-                        value = meta_funcs.voltage_to_angle_conv(int(topic_val))
+                        value = general_funcs.voltage_to_angle_conv(int(topic_val))
                         cmd1 = 'menu1.t1.txt="' + str(value) + '"'
                         cmd2 = f"menu1.q2.picc={degree_picc}"
                         self.serial_write(cmd1)
                         self.serial_write(cmd2)
                     case "2":
-                        value = meta_funcs.voltage_to_angle_conv(int(topic_val))
+                        value = general_funcs.voltage_to_angle_conv(int(topic_val))
                         cmd1 = 'menu1.t4.txt="' + str(value) + '"'
                         cmd2 = f"menu1.q5.picc={degree_picc}"
                         self.serial_write(cmd1)
                         self.serial_write(cmd2)
                     case "3":
-                        value = meta_funcs.voltage_to_angle_conv(int(topic_val))
+                        value = general_funcs.voltage_to_angle_conv(int(topic_val))
                         cmd1 = 'menu1.t5.txt="' + str(value) + '"'
                         cmd2 = f"menu1.q8.picc={degree_picc}"
                         self.serial_write(cmd1)
                         self.serial_write(cmd2)
                     case "4":
-                        value = meta_funcs.voltage_to_angle_conv(int(topic_val))
+                        value = general_funcs.voltage_to_angle_conv(int(topic_val))
                         cmd1 = 'menu1.t8.txt="' + str(value) + '"'
                         cmd2 = f"menu1.q11.picc={degree_picc}"
                         self.serial_write(cmd1)

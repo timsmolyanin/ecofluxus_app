@@ -8,7 +8,8 @@ import serial
 import struct
 
 import list_of_mqtt_topics
-import meta_funcs
+import general_funcs
+import calculate_angle
 
 from loguru import logger
 
@@ -45,6 +46,11 @@ class TestChControl(Thread):
         self.weekend_start = 0
         self.weekend_stop = 0
 
+        self.vent_pipe_diameter = 0
+        self.vent_pipe_io_height = 0
+        self.vent_pipe_length = 0
+        self.air_exchange_value = 0
+
     def run(self):
         """
         The function `run` reads data from a serial port and calls a callback function.
@@ -65,38 +71,80 @@ class TestChControl(Thread):
                     pass
                 case "auto_normal":
                     print("Auto normal mode is working!")
+                    data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                    print(data)
                 case "auto_week":
                     print("Auto week mode is working!")
                     match current_weekday:
                         case 0 | 1 | 2 | 3 | 4:
                             if current_hour in range(self.week_start, self.week_stop):
                                 print("Weekday and we in time range!")
+                                data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                                print(data)
                             else:
                                 print("Weekday but we not in time range :(")
                         case 5 | 6:
                             if current_hour in range(self.weekend_start, self.weekend_stop):
                                 print("Weekend and we in time range!")
+                                data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                                print(data)
                             else:
                                 print("Weekend but we not in time range :(")
                 case "auto_smart_week":
                     print("Auto smart week mode is working!")
                     if current_hour in range(self.sw_period1_start, self.sw_period1_stop):
                         print("We in 1st period!")
+                        data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                        print(data)
                     else:
                         print("We not in 1st period")   
                     if self.sw_period2_state:
                         if current_hour in range(self.sw_period2_start, self.sw_period2_stop):
                             print("We in 2nd period!")
+                            data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                            print(data)
                         else:
                             print("We not in 2nd period")
                     if self.sw_period3_state:
                         if current_hour in range(self.sw_period3_start, self.sw_period3_stop):
                             print("We in 3d period!")
+                            data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                            print(data)
                         else:
                             print("We not in 3d period")
                     if self.sw_period4_state:
                         if current_hour in range(self.sw_period4_start, self.sw_period4_stop):
                             print("We in 4th period!")
+                            data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                                                           self.vent_pipe_length,
+                                                           self.vent_pipe_diameter,
+                                                           self.air_exchange_value,
+                                                           25, 15)
+                            print(data)
                         else:
                             print("We not in 4th period")
                     
@@ -133,7 +181,6 @@ class TestChControl(Thread):
             client.on_message = self.on_message
         except Exception as e:
             print(e)
-    
 
     def on_message(self, client, userdata, msg):
         """
@@ -174,7 +221,14 @@ class TestChControl(Thread):
                 self.sw_period4_start = int(topic_val)
             case "SWPeriod4Stop":
                 self.sw_period4_stop = int(topic_val)
-            
+            case "AirExchangeValue":
+                self.air_exchange_value = float(topic_val)
+            case "VentPipeDiameter":
+                self.vent_pipe_diameter = float(topic_val)
+            case "VentPipeIOHeight":
+                self.vent_pipe_io_height = float(topic_val)
+            case "VentPipeLength":
+                self.vent_pipe_length = float(topic_val)
 
 
     def mqtt_start(self):

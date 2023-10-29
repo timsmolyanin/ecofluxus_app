@@ -1,10 +1,8 @@
 from math import sqrt, sin
-import yaml
 
 
-def calculate_angle():
+def calculate_angle(height, length, diameter, airexchange, troom, tout):
     """
-
     :return:
     """
 
@@ -14,27 +12,24 @@ def calculate_angle():
               45, 42, 39, 36, 33, 30, 27, 24, 21, 18,15, 12, 9, 6, 3, 0]
 
     """ Users Parameters """
-    # reading config file and initializing variables:
-    with open("config.yaml", "r") as yaml_file:
-        cfg = yaml.load(yaml_file, Loader=yaml.FullLoader)
-    
-    h = cfg["room1"]["vent_property"]["H"]
-    L = cfg["room1"]["vent_property"]["L"]
-    D = cfg["room1"]["vent_property"]["D"]
-    q_set = cfg["room1"]["vent_property"]["q_set"]
-    print(q_set)
+
+    h = height
+    L = length
+    D = diameter
+    q_set = airexchange
+    # print(q_set)
 
     """ Data from temperature sensors """
-    t_out = 0
-    t_room = 25
+    t_out = tout
+    t_room = troom
 
     """ Calculated values """
     out_air_den = (1.293 * 273) / (273 + t_out)
-    print("out_air_den: ", out_air_den)
+    # print("out_air_den: ", out_air_den)
     room_air_den = (1.293 * 273) / (273 + t_room)
-    print("room_air_den: ", room_air_den)
+    # print("room_air_den: ", room_air_den)
     S = (D ** 2 * 3.1415) / 4
-    print("S: ", S)
+    # print("S: ", S)
 
     VD = list()
     V = list()
@@ -50,12 +45,13 @@ def calculate_angle():
     except Exception as e:
         print(e)
 
-    print("VD: ", VD)
-    print("V: ", V)
-    print(q)
+    # print("VD: ", VD)
+    # print("V: ", V)
+    # print(q)
 
     a = get_nearest_value(q_set, q)
-    print(a[0], angles[a[1]])
+    return a[0], angles[a[1]]
+    # print(a[0], angles[a[1]])
 
 
 def get_nearest_value(n_value, n_list):
