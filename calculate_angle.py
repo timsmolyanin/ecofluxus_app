@@ -17,6 +17,7 @@ def calculate_angle():
     # reading config file and initializing variables:
     with open("config.yaml", "r") as yaml_file:
         cfg = yaml.load(yaml_file, Loader=yaml.FullLoader)
+    
     h = cfg["room1"]["vent_property"]["H"]
     L = cfg["room1"]["vent_property"]["L"]
     D = cfg["room1"]["vent_property"]["D"]

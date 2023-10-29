@@ -1,6 +1,5 @@
 #!/root/wk/py310/bin/python
 
-import serial_port
 import nextion_mqtt_bridge
 import paho.mqtt.client as mqtt
 import yaml

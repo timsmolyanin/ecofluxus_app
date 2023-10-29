@@ -164,7 +164,6 @@ class NextionMqttBridge(Thread):
                 ch = topic_name[-1].split()[1]
                 angle = meta_funcs.voltage_to_angle_conv(int(topic_val))
                 degree_picc = meta_funcs.get_degree_pic_id_by_angle(ch, int(angle))
-                print(ch, topic_val, degree_picc)
                 match ch:
                     case "1":
                         value = meta_funcs.voltage_to_angle_conv(int(topic_val))
