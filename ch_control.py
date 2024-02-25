@@ -18,9 +18,9 @@ logger.add("debug.log", format="{time} {level} {message}", level="DEBUG")
 
 # The `NextionMqttBridge` class is a thread that connects to a Nextion display via serial
 # communication and bridges it with an MQTT broker.
-class TestChControl(Thread):
+class ChannelControl(Thread):
     def __init__(self, mqtt_broker:str, mqtt_port:int, parent=None):
-        super(TestChControl, self).__init__(parent)
+        super(ChannelControl, self).__init__(parent)
         self.broker = mqtt_broker
         self.port = mqtt_port
         self.client_id = f"ecofluxus-mqtt-{random.randint(0, 100)}"
@@ -67,10 +67,8 @@ class TestChControl(Thread):
             time.sleep(2)
             match self.control_mode:
                 case "manual":
-                    print("Manual")
                     pass
                 case "auto_normal":
-                    print("Auto normal mode is working!")
                     data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
@@ -78,76 +76,56 @@ class TestChControl(Thread):
                                                            25, 15)
                     print(data)
                 case "auto_week":
-                    print("Auto week mode is working!")
                     match current_weekday:
                         case 0 | 1 | 2 | 3 | 4:
                             if current_hour in range(self.week_start, self.week_stop):
-                                print("Weekday and we in time range!")
                                 data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            25, 15)
                                 print(data)
-                            else:
-                                print("Weekday but we not in time range :(")
                         case 5 | 6:
                             if current_hour in range(self.weekend_start, self.weekend_stop):
-                                print("Weekend and we in time range!")
                                 data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            25, 15)
                                 print(data)
-                            else:
-                                print("Weekend but we not in time range :(")
                 case "auto_smart_week":
-                    print("Auto smart week mode is working!")
                     if current_hour in range(self.sw_period1_start, self.sw_period1_stop):
-                        print("We in 1st period!")
                         data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            25, 15)
                         print(data)
-                    else:
-                        print("We not in 1st period")   
                     if self.sw_period2_state:
                         if current_hour in range(self.sw_period2_start, self.sw_period2_stop):
-                            print("We in 2nd period!")
                             data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            25, 15)
                             print(data)
-                        else:
-                            print("We not in 2nd period")
                     if self.sw_period3_state:
                         if current_hour in range(self.sw_period3_start, self.sw_period3_stop):
-                            print("We in 3d period!")
                             data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            25, 15)
                             print(data)
-                        else:
-                            print("We not in 3d period")
                     if self.sw_period4_state:
                         if current_hour in range(self.sw_period4_start, self.sw_period4_stop):
-                            print("We in 4th period!")
                             data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            25, 15)
                             print(data)
-                        else:
-                            print("We not in 4th period")
-                    
+
 
     def connect_mqtt(self, whois: str) -> mqtt:
         """
@@ -260,12 +238,12 @@ class TestChControl(Thread):
     
 
 def test():
-    # broker = "192.168.44.10"
-    broker = "192.168.4.15"
+    broker = "192.168.44.10"
+    # broker = "192.168.4.15"
     port = 1883
-    nextion_mqtt_bridge = TestChControl(mqtt_port=port, mqtt_broker=broker)
-    nextion_mqtt_bridge.mqtt_start()
-    nextion_mqtt_bridge.start()
+    channel_control = ChannelControl(mqtt_port=port, mqtt_broker=broker)
+    channel_control.mqtt_start()
+    channel_control.start()
 
 
 if __name__ == "__main__":
