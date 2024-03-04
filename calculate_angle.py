@@ -55,10 +55,13 @@ def calculate_angle(height, length, diameter, airexchange, troom, tout):
 
 
 def get_nearest_value(n_value, n_list):
-    list_of_difs = [abs(n_value - x) for x in n_list]
-    result_index = list_of_difs.index(min(list_of_difs))
+    try:
+        list_of_difs = [abs(n_value - x) for x in n_list]
+        result_index = list_of_difs.index(min(list_of_difs))
 
-    return n_list[result_index], result_index
+        return n_list[result_index], result_index
+    except:
+        print("valksnsa")
 
 
 if __name__ == "__main__":
