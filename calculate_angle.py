@@ -65,5 +65,13 @@ def get_nearest_value(n_value, n_list):
 
 
 if __name__ == "__main__":
-    calculate_angle()
+    h = 6
+    L = 7.5
+    D_vent = 0.116470849
+    S_vent = 0.0106
+    air_exch = 30
+    tin = 25
+    tout = -50
+    res = calculate_angle(h, L, D_vent, air_exch, tin, tout)
+    print(res)
 

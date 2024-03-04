@@ -197,5 +197,38 @@ defineVirtualDevice('Channel_5', {
       order: 1,
       readonly: false
     },
+  SetAngle: {
+      type: 'value',
+      title: 'SetAngle',
+      value: '0',
+      order: 1,
+      readonly: false
+    },
+  FeedbackAngle: {
+      type: 'value',
+      title: 'FeedbackAngle',
+      value: '0',
+      order: 1,
+      readonly: true
+  }
   }
 });
+
+// var sk = 10 / 9;
+// var gk = 0.009;
+
+// // from 0-90 degree to voltage
+// defineRule("ch4_from_angle_to_voltage", {
+// whenChanged: "Channel_4/SetAngle",
+// then: function(newValue, devName, cellName) {
+//   dev["wb-mao4_26/Channel 4 Dimming Level"] = sk * newValue;
+// }
+// });
+
+// // from voltage to angle
+// defineRule("ch4_from_voltage_to_angle", {
+// whenChanged: "wb-mai6_89/IN 4 N Value",
+// then: function(newValue, devName, cellName) {
+//   dev["Channel_4/FeedbackAngle"] = Math.floor(gk * newValue);
+// }
+// });

@@ -210,7 +210,7 @@ defineVirtualDevice('Channel_1', {
       value: '0',
       order: 1,
       readonly: true
-    },
+    }
   }
 });
 
