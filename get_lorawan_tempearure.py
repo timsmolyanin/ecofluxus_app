@@ -47,14 +47,6 @@ class ParseLorawanSensors(Thread):
     
 
     def subscribe(self, client: mqtt):
-        """
-        The `subscribe` function subscribes the client to two MQTT topics and sets the `on_message` callback
-        function to `self.on_message`.
-        
-        :param client: The `client` parameter is an instance of the MQTT client that is used to connect to
-        the MQTT broker and subscribe to topics
-        :type client: mqtt
-        """
         try:
             client.subscribe(lorawan_sens_parser) 
             client.on_message = self.on_message
@@ -90,16 +82,6 @@ class ParseLorawanSensors(Thread):
 
 
     def set_mqtt_topic_value(self, topic_name: str, value):
-        """
-        The function sets the value of a specified MQTT topic.
-        
-        :param topic_name: A string representing the name of the MQTT topic where the value will be
-        published
-        :type topic_name: str
-        :param value: The value parameter is an integer that represents the value you want to publish to
-        the MQTT topic
-        :type value: int
-        """
         topic = topic_name
         publish.single(topic, str(value), hostname=self.broker)
     

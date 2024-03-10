@@ -4,18 +4,16 @@ import paho.mqtt.publish as publish
 import random
 import time
 import datetime
-import json
 
 import list_of_mqtt_topics
-import calculate_angle
 
 from loguru import logger
+
+import calculate_angle
 
 logger.add("debug.log", format="{time} {level} {message}", level="DEBUG")
 
 
-# The `NextionMqttBridge` class is a thread that connects to a Nextion display via serial
-# communication and bridges it with an MQTT broker.
 class ChannelControl(Thread):
     def __init__(self, mqtt_broker:str, mqtt_port:int, parent=None):
         super(ChannelControl, self).__init__(parent)
@@ -50,7 +48,7 @@ class ChannelControl(Thread):
         self.air_exchange_value = 0
 
         self.out_temp = 0
-        self.home_temp = 15
+        self.home_temp = 0
 
     def run(self):
         """
@@ -75,8 +73,9 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           30, self.out_temp)
-                    print(data)
+                                                           self.home_temp, self.out_temp)
+                    print("angle = ", data)
+                    self.set_mqtt_topic_value("/devices/Channel_1/controls/SetAngle/on", str(data))
                 case "auto_week":
                     match current_weekday:
                         case 0 | 1 | 2 | 3 | 4:
@@ -85,7 +84,7 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           25, 15)
+                                                           self.home_temp, self.out_temp)
                                 # print(data)
                         case 5 | 6:
                             if current_hour in range(self.weekend_start, self.weekend_stop):
@@ -93,7 +92,7 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           25, 15)
+                                                           self.home_temp, self.out_temp)
                                 # print(data)
                 case "auto_smart_week":
                     if current_hour in range(self.sw_period1_start, self.sw_period1_stop):
@@ -101,7 +100,7 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           25, 15)
+                                                           self.home_temp, self.out_temp)
                         # print(data)
                     if self.sw_period2_state:
                         if current_hour in range(self.sw_period2_start, self.sw_period2_stop):
@@ -109,7 +108,7 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           25, 15)
+                                                           self.home_temp, self.out_temp)
                             # print(data)
                     if self.sw_period3_state:
                         if current_hour in range(self.sw_period3_start, self.sw_period3_stop):
@@ -117,7 +116,7 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           25, 15)
+                                                           self.home_temp, self.out_temp)
                             # print(data)
                     if self.sw_period4_state:
                         if current_hour in range(self.sw_period4_start, self.sw_period4_stop):
@@ -125,8 +124,10 @@ class ChannelControl(Thread):
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
-                                                           25, 15)
+                                                           self.home_temp, self.out_temp)
                             # print(data)
+                case "vacation":
+                    pass
 
 
     def connect_mqtt(self, whois: str) -> mqtt:
@@ -211,13 +212,8 @@ class ChannelControl(Thread):
                 self.vent_pipe_length = float(topic_val)
             case "28-3c01d075c9e9":
                 self.out_temp = float(topic_val)
-                # print(topic_val)
-            case "up":
-                aDict = json.loads(topic_val)
-                try:
-                    self.home_temp = float(aDict["object"]["TempC_SHT"])
-                except:
-                    print("balbal")
+            case "Temperature1":
+                self.home_temp = float(topic_val)
 
 
     def mqtt_start(self):
@@ -231,16 +227,6 @@ class ChannelControl(Thread):
 
 
     def set_mqtt_topic_value(self, topic_name: str, value):
-        """
-        The function sets the value of a specified MQTT topic.
-        
-        :param topic_name: A string representing the name of the MQTT topic where the value will be
-        published
-        :type topic_name: str
-        :param value: The value parameter is an integer that represents the value you want to publish to
-        the MQTT topic
-        :type value: int
-        """
         topic = topic_name
         publish.single(topic, str(value), hostname=self.broker)
     
