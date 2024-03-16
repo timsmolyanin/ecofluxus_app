@@ -69,13 +69,14 @@ class ChannelControl(Thread):
                     pass
                 case "auto_normal":
                     print("out = ", self.out_temp, "home = ", self.home_temp)
-                    data = calculate_angle.calculate_angle(self.vent_pipe_io_height,
+                    ai_exch_calc, angle = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            self.home_temp, self.out_temp)
-                    print("angle = ", data)
-                    self.set_mqtt_topic_value("/devices/Channel_1/controls/SetAngle/on", str(data))
+                    print("data = ", ai_exch_calc, angle)
+                    self.set_mqtt_topic_value("/devices/Channel_1/controls/SetAngle/on", str(angle))
+                    self.set_mqtt_topic_value("/devices/Channel_1/controls/AirExchangeCalc/on", str(ai_exch_calc))
                 case "auto_week":
                     match current_weekday:
                         case 0 | 1 | 2 | 3 | 4:

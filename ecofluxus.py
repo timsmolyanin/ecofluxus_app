@@ -14,6 +14,10 @@ def main():
     channel_control.mqtt_start()
     channel_control.start()
 
+    alarm_ser = alarm_service.AlarmService(mqtt_port=port, mqtt_broker=broker)
+    alarm_ser.mqtt_start()
+    alarm_ser.start()
+
         
 if __name__ == "__main__":
     main()

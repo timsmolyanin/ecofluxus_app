@@ -27,6 +27,9 @@ class AlarmService(Thread):
         self.alarm_signal_state = 0
         self.alarm_trigger = 0
 
+        self.outdoor_temp_sens_status = 0
+        self.vent_channel_status1 = 0
+
     def run(self):
         while True:
             self.alarm_manager()
@@ -55,29 +58,43 @@ class AlarmService(Thread):
         topic_name = msg.topic.split("/")
         topic_val = msg.payload.decode("utf-8")
         print(topic_name, topic_val)
-        # try:
-        #     match topic_name[-1]:
-        #         case "AlarmSignalType":
-        #             self.alarm_signal_type = topic_val
-        #         case "AlarmSignalValue":
-        #             self.set_mqtt_topic_value("/devices/buzzer/controls/volume/on", str(topic_val))
-        #         case "PeriodicAlarmPerMin":
-        #             self.alarm_per_min = int(topic_val)
-        #         case "RepeatAlarmPerMin":
-        #             self.alarm_per_min = int(topic_val)
-        #         case "RepeatAlarmTimes":
-        #             self.repeat_alarm_times = int(topic_val)
-        #         case "AlarmSignalState":
-        #             self.alarm_signal_state = int(topic_val)
-        #         case "OutdoorTempSensStatus":
-        #             self.alarm_trigger = int(topic_val)
-        # except Exception as err:
-        #     print(err)
+        try:
+            match topic_name[-1]:
+                case "AlarmSignalType":
+                    self.alarm_signal_type = topic_val
+                case "AlarmSignalValue":
+                    self.set_mqtt_topic_value("/devices/buzzer/controls/volume/on", str(topic_val))
+                case "PeriodicAlarmPerMin":
+                    self.alarm_per_min = int(topic_val)
+                case "RepeatAlarmPerMin":
+                    self.alarm_per_min = int(topic_val)
+                case "RepeatAlarmTimes":
+                    self.repeat_alarm_times = int(topic_val)
+                case "AlarmSignalState":
+                    self.alarm_signal_state = int(topic_val)
+                case "OutdoorTempSensStatus" | "VentChannelStatus1":
+                    self.alarm_trigger = int(topic_val)
+                    if int(self.alarm_trigger) == 0:
+                        self.set_mqtt_topic_value("/devices/wb-gpio/controls/D1_OUT/on", str(0))
+                case "error":
+                    match topic_name[-3]:
+                        case "IN 1 N Voltage":
+                            if topic_val == "":
+                                self.set_mqtt_topic_value("/devices/AlarmService/controls/VentChannelStatus1/on", str(0))
+                            elif topic_val in ("r", "w"):
+                                self.set_mqtt_topic_value("/devices/AlarmService/controls/VentChannelStatus1/on", str(1))
+                        case "28-3c01d075c9e9":
+                            if topic_val == "":
+                                self.set_mqtt_topic_value("/devices/AlarmService/controls/OutdoorTempSensStatus/on", str(0))
+                            elif topic_val in ("r", "w"):
+                                self.set_mqtt_topic_value("/devices/AlarmService/controls/OutdoorTempSensStatus/on", str(1))
+                    
+        except Exception as err:
+            print(err)
     
     def mqtt_start(self):
         self.subscribe(self.mqtt_broker_obj)
         self.mqtt_broker_obj.loop_start()
-
 
     def set_mqtt_topic_value(self, topic_name: str, value):
         topic = topic_name
@@ -88,17 +105,20 @@ class AlarmService(Thread):
             time.sleep(self.alarm_per_min)
             if self.alarm_signal_state:
                 if self.alarm_trigger:
+                    self.set_mqtt_topic_value("/devices/wb-gpio/controls/D1_OUT/on", str(1))
                     match self.alarm_signal_type:
                         case "periodic":
                             self.alarm_periodic()
                         case "continuos":
                             self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 1)
-                        case "+":
+                        case "repeatedly":
                             self.alarm_repeatedly()
                 else:
                     self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 0)
+                    self.set_mqtt_topic_value("/devices/wb-gpio/controls/D1_OUT/on", str(0))
             else:
                 self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 0)
+                self.set_mqtt_topic_value("/devices/wb-gpio/controls/D1_OUT/on", str(0))
 
     def alarm_repeatedly(self):
         alarm_state = 0

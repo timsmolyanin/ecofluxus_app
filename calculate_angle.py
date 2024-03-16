@@ -53,8 +53,8 @@ def calculate_angle(height, length, diameter, airexchange, troom, tout):
 
     # print(q_set, q)
     air_exch = get_nearest_value(q_set, q)
-    # print(air_exch)
-    return ANGLES[air_exch[1]]
+    air_exch_calc = air_exch[0].real
+    return round(air_exch_calc, 2), ANGLES[air_exch[1]]
 
 def get_nearest_value(n_value, n_list):
     try:
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     L = 7.5
     D_vent = 0.125
     S_vent = 1
-    air_exch = 50
+    air_exch = 30
     tin = 1
     # for tout in range(25):
     res = calculate_angle(h, L, D_vent, air_exch, tin, 2)

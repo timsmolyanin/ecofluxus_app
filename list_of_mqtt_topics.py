@@ -15,10 +15,8 @@ alarm_service = [("/devices/GeneralInfo/controls/AlarmSignalType", 0),
                  ("/devices/GeneralInfo/controls/AlarmSignalState", 0),
                  ("/devices/wb-w1/controls/28-3c01d075c9e9/meta/error", 0),
                  ("/devices/wb-mai6_89/controls/IN 1 N Voltage/meta/error", 0),
-                 ("/devices/wb-mai6_89/controls/IN 2 N Voltage/meta/error", 0),
-                 ("/devices/wb-mai6_89/controls/IN 3 N Voltage/meta/error", 0),
-                 ("/devices/wb-mai6_89/controls/IN 4 N Voltage/meta/error", 0),
                  ("/devices/AlarmService/controls/OutdoorTempSensStatus", 0),
+                 ("/devices/AlarmService/controls/VentChannelStatus1", 0),
                  ]
 
 ch1_topic_list = [("/devices/Channel_1/controls/ControlMode", 0),
