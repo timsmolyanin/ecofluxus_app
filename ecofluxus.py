@@ -1,5 +1,5 @@
 import ch_control
-import get_lorawan_tempearure
+import lorawan_sensors_parser
 import alarm_service
 
 def main():
@@ -7,7 +7,7 @@ def main():
     # broker = "192.168.4.15"
     port = 1883
 
-    get_temperature = get_lorawan_tempearure.ParseLorawanSensors(mqtt_port=port, mqtt_broker=broker, mqtt_passw=None, mqtt_user=None,)
+    get_temperature = lorawan_sensors_parser.ParseLorawanSensors(mqtt_port=port, mqtt_broker=broker, mqtt_passw=None, mqtt_user=None,)
     get_temperature.start()
 
     channel_control = ch_control.ChannelControl(mqtt_port=port, mqtt_broker=broker)
@@ -18,6 +18,6 @@ def main():
     alarm_ser.mqtt_start()
     alarm_ser.start()
 
-        
+
 if __name__ == "__main__":
     main()

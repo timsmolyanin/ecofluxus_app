@@ -1,7 +1,7 @@
-list_of_mqtt_topics = [ ("/devices/wb-mai6_89/controls/IN 1 N Value", 0),
-                        ("/devices/wb-mai6_89/controls/IN 2 N Value", 0),
-                        ("/devices/wb-mai6_89/controls/IN 3 N Value", 0),
-                        ("/devices/wb-mai6_89/controls/IN 4 N Value", 0),
+list_of_mqtt_topics = [ ("/devices/wb-mai6_89/controls/IN 1 N Voltage", 0),
+                        ("/devices/wb-mai6_89/controls/IN 1 P Voltage", 0),
+                        ("/devices/wb-mai6_89/controls/IN 2 N Voltage", 0),
+                        ("/devices/wb-mai6_89/controls/IN 2 P Voltage", 0),
                         ]
 
 lorawan_sens_parser = [("application/9f1832a7-2862-4e8e-9c20-0f8342e689de/device/a840415711866a85/event/up", 0),
