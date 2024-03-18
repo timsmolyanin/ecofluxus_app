@@ -72,8 +72,8 @@ if __name__ == "__main__":
     D_vent = 0.125
     S_vent = 1
     air_exch = 30
-    tin = 1
+    tin = 25
     # for tout in range(25):
-    res = calculate_angle(h, L, D_vent, air_exch, tin, 2)
+    res = calculate_angle(h, L, D_vent, air_exch, tin, 22)
     print(res)
 

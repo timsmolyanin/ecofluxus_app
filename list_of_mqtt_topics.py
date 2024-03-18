@@ -1,8 +1,3 @@
-list_of_mqtt_topics = [ ("/devices/wb-mai6_89/controls/IN 1 N Voltage", 0),
-                        ("/devices/wb-mai6_89/controls/IN 1 P Voltage", 0),
-                        ("/devices/wb-mai6_89/controls/IN 2 N Voltage", 0),
-                        ("/devices/wb-mai6_89/controls/IN 2 P Voltage", 0),
-                        ]
 
 lorawan_sens_parser = [("application/9f1832a7-2862-4e8e-9c20-0f8342e689de/device/a840415711866a85/event/up", 0),
                        ]
@@ -40,7 +35,11 @@ ch1_topic_list = [("/devices/Channel_1/controls/ControlMode", 0),
                    ("/devices/Channel_1/controls/VentPipeIOHeight", 0),
                    ("/devices/Channel_1/controls/VentPipeLength", 0),
                    ("/devices/Channel_1/controls/RoomArea", 0),
-                   ("/devices/Channel_1/controls/AirExchangeValue", 0),
+                   ("/devices/Channel_1/controls/AirExchangeSet", 0),
                    ("/devices/wb-w1/controls/28-3c01d075c9e9", 0),
                    ("/devices/LorawanSensors/controls/Temperature1", 0),
+                   ("/devices/GeneralInfo/controls/VacationState", 0),
+                   ("/devices/GeneralInfo/controls/VacationValue1", 0),
+                   ("/devices/GeneralInfo/controls/VacationValue2", 0),
+                   ("/devices/Channel_1/controls/UpdatePeriod", 0),
                    ]

@@ -51,9 +51,9 @@ class ChannelControl(Thread):
         self.out_temp = 0
         self.home_temp = 0
 
-        self.update_period_value = 60
+        self.update_period_value = 1
 
-        self.last_mode = ""
+        self.last_mode = "auto_normal"
         self.vacation_first_date = 0
         self.vacation_second_date = 0
 
@@ -62,20 +62,23 @@ class ChannelControl(Thread):
         self.manage_control_modes()
     
 
-    def manage_auto_control_modes(self):
+    def manage_control_modes(self):
         while True:
             time.sleep(self.update_period_value)
+            curent_date = datetime.date.today()
             current_dt = datetime.datetime.now()
             current_weekday = current_dt.weekday()
             current_hour = current_dt.hour
             match self.control_mode:
                 case "manual":
+                    print("Manual mode")
                     self.last_mode = "manual"
-                    pass
                 case "auto_normal":
+                    print("Auto normal mode")
                     self.last_mode = "auto_normal"
                     self.set_valve_angle()
                 case "auto_week":
+                    print("Auto week mode")
                     self.last_mode = "auto_week"
                     match current_weekday:
                         case 0 | 1 | 2 | 3 | 4:
@@ -89,6 +92,7 @@ class ChannelControl(Thread):
                             else:
                                 self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(0))
                 case "auto_smart_week":
+                    print("Auto smart week mode")
                     self.last_mode = "auto_smart_week"
                     if current_hour in range(self.sw_period1_start, self.sw_period1_stop):
                         self.set_valve_angle()
@@ -110,9 +114,12 @@ class ChannelControl(Thread):
                         else:
                             self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(0))
                 case "vacation":
-                    if current_hour in range(self.vacation_first_date, self.vacation_second_date):
+                    print("Vacation state.")
+                    if self.vacation_first_date <= curent_date <= self.vacation_second_date:
+                        print("Condition is True. We in vacation range, valve is close")
                         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(0))
                     else:
+                        print("Vacation is end, we will switch to the last control mode")
                         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/ControlMode/on", str(self.last_mode))
 
 
@@ -142,7 +149,7 @@ class ChannelControl(Thread):
         """
         topic_name = msg.topic.split("/")
         topic_val = msg.payload.decode("utf-8")
-        # print(topic_name, topic_val)
+        print(topic_name, topic_val)
         match topic_name[-1]:
             case "ControlMode":
                 self.control_mode = topic_val
@@ -176,7 +183,7 @@ class ChannelControl(Thread):
                 self.sw_period4_start = int(topic_val)
             case "SWPeriod4Stop":
                 self.sw_period4_stop = int(topic_val)
-            case "AirExchangeValue":
+            case "AirExchangeSet":
                 self.air_exchange_value = float(topic_val)
             case "VentPipeDiameter":
                 self.vent_pipe_diameter = float(topic_val)
@@ -188,7 +195,23 @@ class ChannelControl(Thread):
                 self.out_temp = float(topic_val)
             case "Temperature1":
                 self.home_temp = float(topic_val)
-
+            case "VacationState":
+                if int(topic_val):
+                    self.control_mode = "vacation"
+                else:
+                    self.control_mode = self.last_mode
+            case "VacationValue1":
+                try:
+                    self.vacation_first_date = datetime.datetime.strptime(topic_val, '%d.%m.%Y').date()
+                except Exception as e:
+                    print(e)
+            case "VacationValue2":
+                try:
+                    self.vacation_second_date = datetime.datetime.strptime(topic_val, '%d.%m.%Y').date()
+                except Exception as e:
+                    print(e)
+            case "UpdatePeriod":
+                self.update_period_value = int(topic_val)
 
     def mqtt_start(self):
         client = self.connect_mqtt(f"Ch{self.chan_num} control module")
@@ -201,11 +224,19 @@ class ChannelControl(Thread):
         publish.single(topic, str(value), hostname=self.broker)
     
     def set_valve_angle(self):
+        print("temparatures: ", f"Home - {self.home_temp}, Out - {self.out_temp}")
+        print(f"Vent parameters: Height = {self.vent_pipe_io_height}, \n \
+              Length = {self.vent_pipe_length}, \n \
+              Diameter = {self.vent_pipe_diameter}, \n \
+              Air exchange = {self.air_exchange_value}")
         air_exch_cval, angle = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
                                                            self.vent_pipe_diameter,
                                                            self.air_exchange_value,
                                                            self.home_temp, self.out_temp)
+
+        
+        print("Air exchange and angle = ", air_exch_cval, angle)
         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(angle))
         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/AirExchangeCalc/on", str(air_exch_cval))
     

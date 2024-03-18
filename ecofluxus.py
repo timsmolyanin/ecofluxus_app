@@ -7,10 +7,10 @@ def main():
     # broker = "192.168.4.15"
     port = 1883
 
-    get_temperature = lorawan_sensors_parser.ParseLorawanSensors(mqtt_port=port, mqtt_broker=broker, mqtt_passw=None, mqtt_user=None,)
+    get_temperature = lorawan_sensors_parser.LorawanSensorsParser(mqtt_port=port, mqtt_broker=broker, mqtt_passw=None, mqtt_user=None,)
     get_temperature.start()
 
-    channel_control = ch_control.ChannelControl(mqtt_port=port, mqtt_broker=broker)
+    channel_control = ch_control.ChannelControl(mqtt_port=port, mqtt_broker=broker, channel_num=1)
     channel_control.mqtt_start()
     channel_control.start()
 
