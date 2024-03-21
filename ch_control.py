@@ -1,3 +1,5 @@
+#!/root/wk/py312/bin/python
+
 from threading import Thread
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
@@ -304,14 +306,15 @@ class ChannelControl(Thread):
         current_unix = (time.mktime(current_date_time.timetuple()))
         return(start_unix, end_unix, current_unix)
 
-def test():
-    broker = "192.168.44.10"
-    # broker = "192.168.4.15"
+def main():
+    # broker = "192.168.44.10"
+    broker = "localhost"
     port = 1883
-    channel_control = ChannelControl(mqtt_port=port, mqtt_broker=broker, channel_num=1)
-    channel_control.mqtt_start()
-    channel_control.start()
+    for ch_num in range(1, 3+1):
+        channel_control = ChannelControl(mqtt_port=port, mqtt_broker=broker, channel_num=ch_num)
+        channel_control.mqtt_start()
+        channel_control.start()
 
 if __name__ == "__main__":
-    test()
+    main()
     

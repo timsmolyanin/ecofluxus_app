@@ -1,0 +1,12 @@
+[Unit]
+Description=Ecofluxus channel control application service
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+Restart=always
+ExecStart=/root/wk/py312/bin/python /root/wk/ecofluxus_app/ch_control.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Ecofluxus alarm application service
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+Restart=always
+ExecStart=/root/wk/py312/bin/python /root/wk/ecofluxus_app/alarm_service.py
+
+[Install]
+WantedBy=multi-user.target

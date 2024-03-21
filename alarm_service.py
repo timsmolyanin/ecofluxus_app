@@ -1,3 +1,5 @@
+#!/root/wk/py312/bin/python
+
 from threading import Thread
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
@@ -163,8 +165,8 @@ class AlarmService(Thread):
 
 
 def main():
-    broker = "192.168.44.10"
-    # broker = "192.168.4.15"
+    # broker = "192.168.44.10"
+    broker = "localhost"
     port = 1883
 
     alarm_service = AlarmService(mqtt_port=port, mqtt_broker=broker)

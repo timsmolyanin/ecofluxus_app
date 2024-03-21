@@ -1,0 +1,12 @@
+[Unit]
+Description=Ecofluxus lorawan parser application service
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+Restart=always
+ExecStart=/root/wk/py312/bin/python /root/wk/ecofluxus_app/lorawan_sensors_parser.py
+
+[Install]
+WantedBy=multi-user.target

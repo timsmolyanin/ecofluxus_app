@@ -1,3 +1,5 @@
+#!/root/wk/py312/bin/python
+
 from threading import Thread
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
@@ -69,13 +71,14 @@ class LorawanSensorsParser(Thread):
         publish.single(topic, str(value), hostname=self.broker)
     
 
-def test():
-    broker = "192.168.44.10"
+def main():
+    # broker = "192.168.44.10"
+    broker = "localhost"
     port = 1883
     get_temperature = LorawanSensorsParser(mqtt_port=port, mqtt_broker=broker, mqtt_passw=None, mqtt_user=None,)
     get_temperature.start()
 
 
 if __name__ == "__main__":
-    test()
+    main()
     
