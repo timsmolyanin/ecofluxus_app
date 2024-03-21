@@ -67,7 +67,7 @@ class ChannelControl(Thread):
         self.eco_coef_value = 0
 
     def run(self):
-        logger.debug(f"Auto control thread is started")
+        logger.debug(f"Control Thread for ch {self.chan_num} is started")
         self.manage_control_modes()
     
 
@@ -80,19 +80,19 @@ class ChannelControl(Thread):
             current_weekday = current_dt.weekday()
             match self.control_mode:
                 case "manual":
-                    print("Manual mode")
+                    # print("Manual mode")
                     self.last_mode = "manual"
                     if self.feedback_angle > 0:
                             self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/VentWidState/on", "blue")
                     else:
                         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/VentWidState/on", "gray")
                 case "auto_normal":
-                    print("Auto normal mode")
+                    # print("Auto normal mode")
                     self.last_mode = "auto_normal"
                     self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/VentWidState/on", "green")
                     self.set_valve_angle()
                 case "auto_week":
-                    print("Auto week mode")
+                    # print("Auto week mode")
                     self.last_mode = "auto_week"
                     self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/VentWidState/on", "green")
                     match current_weekday:
@@ -110,7 +110,7 @@ class ChannelControl(Thread):
                                 self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(0))
                         
                 case "auto_smart_week":
-                    print("Auto smart week mode")
+                    # print("Auto smart week mode")
                     self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/VentWidState/on", "green")
                     self.last_mode = "auto_smart_week"
                     period1_start, period1_end, period1_current = self.get_unix_timestamps(self.sw_period1_start, self.sw_period1_stop, current_dt)
@@ -137,13 +137,13 @@ class ChannelControl(Thread):
                         else:
                             self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(0))
                 case "vacation":
-                    print("Vacation state.")
+                    # print("Vacation state.")
                     if self.vacation_first_date <= curent_date <= self.vacation_second_date:
                         print("Condition is True. We in vacation range, valve is close")
                         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(0))
                         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/VentWidState/on", "gray")
                     else:
-                        print("Vacation is end, we will switch to the last control mode")
+                        # print("Vacation is end, we will switch to the last control mode")
                         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/ControlMode/on", str(self.last_mode))
                         self.set_mqtt_topic_value(f"/devices/GeneralInfo/controls/VacationState/on", str(0))
                 case "alarm":
@@ -169,7 +169,7 @@ class ChannelControl(Thread):
             client.subscribe(list_of_mqtt_topics.ch1_topic_list) 
             client.on_message = self.on_message
         except Exception as e:
-            print(e)
+            logger.debug(e)
 
     def on_message(self, client, userdata, msg):
         """
@@ -231,12 +231,12 @@ class ChannelControl(Thread):
                 try:
                     self.vacation_first_date = datetime.datetime.strptime(topic_val, '%d.%m.%Y').date()
                 except Exception as e:
-                    print(e)
+                    logger.debug(e)
             case "VacationValue2":
                 try:
                     self.vacation_second_date = datetime.datetime.strptime(topic_val, '%d.%m.%Y').date()
                 except Exception as e:
-                    print(e)
+                    logger.debug(e)
             case "UpdatePeriod":
                 self.update_period_value = int(topic_val)
             case "FeedbackAngle":
@@ -263,7 +263,7 @@ class ChannelControl(Thread):
         publish.single(topic, str(value), hostname=self.broker)
     
     def set_valve_angle(self):
-        print("temparatures: ", f"Home - {self.home_temp}, Out - {self.out_temp}")
+        # print("temparatures: ", f"Home - {self.home_temp}, Out - {self.out_temp}")
         if not self.eco_coef_state:
             air_exch_cval, angle = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
@@ -272,7 +272,7 @@ class ChannelControl(Thread):
                                                            self.home_temp, self.out_temp)
         else:
             econom_value = (self.eco_coef_value / 100) * self.air_exchange_value
-            print("asdsdasdsadasdasdasd", self.eco_coef_value, self.air_exchange_value, econom_value)
+            # print("asdsdasdsadasdasdasd", self.eco_coef_value, self.air_exchange_value, econom_value)
             total_air_exchange = self.air_exchange_value - econom_value
             air_exch_cval, angle = calculate_angle.calculate_angle(self.vent_pipe_io_height,
                                                            self.vent_pipe_length,
@@ -280,7 +280,7 @@ class ChannelControl(Thread):
                                                            total_air_exchange,
                                                            self.home_temp, self.out_temp)
         
-        print("Air exchange and angle = ", air_exch_cval, angle)
+        # print("Air exchange and angle = ", air_exch_cval, angle)
         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/SetAngle/on", str(angle))
         self.set_mqtt_topic_value(f"/devices/Channel_{self.chan_num}/controls/AirExchangeCalc/on", str(air_exch_cval))
     

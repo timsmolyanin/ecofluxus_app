@@ -5,7 +5,6 @@ import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import json
 import random
-import time
 
 from list_of_mqtt_topics import lorawan_sens_parser
 
@@ -21,7 +20,7 @@ class LorawanSensorsParser(Thread):
         self.port = mqtt_port
         self.client_id = f"ecofluxus-mqtt-{random.randint(0, 100)}"
         self.comport_open_timeout = 10
-        self.mqtt_broker_obj = self.connect_mqtt("BAlbal")
+        self.mqtt_broker_obj = self.connect_mqtt("Ecofluxus-lorawan-parser")
 
     def run(self):
         logger.debug(f"Meow")
@@ -46,7 +45,7 @@ class LorawanSensorsParser(Thread):
             client.subscribe(lorawan_sens_parser) 
             client.on_message = self.on_message
         except Exception as e:
-            print(e)
+            logger.debug(e)
     
 
     def on_message(self, client, userdata, msg):
@@ -59,8 +58,8 @@ class LorawanSensorsParser(Thread):
                 tempc = object_dict.get("TempC_SHT")
                 if tempc:
                     self.set_mqtt_topic_value("/devices/LorawanSensors/controls/Temperature1/on", tempc)
-        except:
-            print("balbal")
+        except Exception as e:
+            logger.debug(e)
     
     def mqtt_start(self):
         self.subscribe(self.mqtt_broker_obj)

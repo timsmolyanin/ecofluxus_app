@@ -11,7 +11,7 @@ from list_of_mqtt_topics import alarm_service
 
 from loguru import logger
 
-logger.add("debug.log", format="{time} {level} {message}", level="DEBUG")
+logger.add("alarm-service-debug.log", format="{time} {level} {message}", level="DEBUG")
 
 # /devices/wb-w1/controls/28-3c01d075c9e9/meta/error
 
@@ -20,8 +20,8 @@ class AlarmService(Thread):
         super(AlarmService, self).__init__(parent)
         self.broker = mqtt_broker
         self.port = mqtt_port
-        self.client_id = f"ecofluxus-mqtt-{random.randint(0, 100)}"
-        self.mqtt_broker_obj = self.connect_mqtt("AlarmService")
+        self.client_id = f"ecofluxus-alarm-service-{random.randint(0, 100)}"
+        self.mqtt_broker_obj = self.connect_mqtt("Ecofluxus-alarm-service")
 
         self.alarm_signal_type = "periodic"
         self.alarm_per_min = 5
@@ -54,12 +54,12 @@ class AlarmService(Thread):
             client.subscribe(alarm_service) 
             client.on_message = self.on_message
         except Exception as e:
-            print(e)
+            logger.debug(e)
 
     def on_message(self, client, userdata, msg):
         topic_name = msg.topic.split("/")
         topic_val = msg.payload.decode("utf-8")
-        print(topic_name, topic_val)
+        # print(topic_name, topic_val)
         try:
             match topic_name[-1]:
                 case "AlarmSignalType":
@@ -91,7 +91,7 @@ class AlarmService(Thread):
                             elif topic_val in ("r", "w"):
                                 self.set_mqtt_topic_value("/devices/AlarmService/controls/OutdoorTempSensStatus/on", str(1))
         except Exception as err:
-            print(err)
+            logger.debug(err)
     
     def mqtt_start(self):
         self.subscribe(self.mqtt_broker_obj)
