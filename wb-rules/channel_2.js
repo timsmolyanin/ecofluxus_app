@@ -50,9 +50,16 @@ defineVirtualDevice('Channel_2', {
       order: 1,
       readonly: false
     },
-  AirExchangeValue: {
+  AirExchangeSet: {
       type: 'value',
-      title: 'AirExchangeValue',
+      title: 'AirExchangeSet',
+      value: '0',
+      order: 1,
+      readonly: false
+    },
+  AirExchangeCalc: {
+      type: 'value',
+      title: 'AirExchangeCalc',
       value: '0',
       order: 1,
       readonly: false
@@ -210,13 +217,42 @@ defineVirtualDevice('Channel_2', {
       value: '0',
       order: 1,
       readonly: true
+    },
+  LastSetAngle: {
+      type: 'value',
+      title: 'LastSetAngle',
+      value: '0',
+      order: 1,
+      readonly: false
+    },
+  SetLastAngle: {
+      type: 'value',
+      title: 'SetLastAngle',
+      value: '0',
+      order: 1,
+      readonly: false
+    },
+  UpdatePeriod: {
+      type: 'value',
+      title: 'UpdatePeriod',
+      value: '0',
+      order: 1,
+      readonly: false
+    },
+  VentWidState: {
+      type: 'text',
+      title: 'VentWidState',
+      value: '',
+      order: 1,
+      readonly: false
   }
-}
+  }
 });
-var sk = 10 / 9;
-var gk = 0.009;
 
 // from 0-90 degree to voltage
+var sk = 1.11111111111;
+var gk = 8.89503;
+
 defineRule("ch2_from_angle_to_voltage", {
 whenChanged: "Channel_2/SetAngle",
 then: function(newValue, devName, cellName) {
@@ -226,8 +262,33 @@ then: function(newValue, devName, cellName) {
 
 // from voltage to angle
 defineRule("ch2_from_voltage_to_angle", {
-whenChanged: "wb-mai6_89/IN 2 N Value",
+whenChanged: "wb-mai6_89/IN 1 P Voltage",
 then: function(newValue, devName, cellName) {
-  dev["Channel_2/FeedbackAngle"] = Math.floor(gk * newValue);
+  angle_val = Math.round(gk * newValue)+1;
+  if (angle_val > 90){
+    dev["Channel_2/FeedbackAngle"] = 90;
+  }
+  else if (angle_val <= 1){
+    dev["Channel_2/FeedbackAngle"] = 0;
+  }
+  else{
+    dev["Channel_2/FeedbackAngle"] = angle_val;
+  }
+}
+});
+
+var last_set_angle = 0;
+
+defineRule("last_set_angle", {
+whenChanged: "Channel_2/LastSetAngle",
+then: function(newValue, devName, cellName) {
+  last_set_angle = newValue;
+}
+});
+
+defineRule("set_last_angle", {
+whenChanged: "Channel_2/SetLastAngle",
+then: function(newValue, devName, cellName) {
+  dev["Channel_2/SetAngle"] = last_set_angle;
 }
 });

@@ -72,7 +72,7 @@ class AlarmService(Thread):
                     self.repeat_alarm_times = int(topic_val)
                 case "AlarmSignalState":
                     self.alarm_signal_state = int(topic_val)
-                case "OutdoorTempSensStatus" | "VentChannelStatus1":
+                case "OutdoorTempSensStatus" | "VentChannelStatus1" | "VentChannelStatus2" | "VentChannelStatus3" | "VentChannelStatus4" | "VentChannelStatus5" | "VentChannelStatus6":
                     self.alarm_trigger = int(topic_val)
                     if int(self.alarm_trigger) == 0:
                         self.set_mqtt_topic_value("/devices/wb-gpio/controls/D1_OUT/on", str(0))
@@ -88,7 +88,6 @@ class AlarmService(Thread):
                                 self.set_mqtt_topic_value("/devices/AlarmService/controls/OutdoorTempSensStatus/on", str(0))
                             elif topic_val in ("r", "w"):
                                 self.set_mqtt_topic_value("/devices/AlarmService/controls/OutdoorTempSensStatus/on", str(1))
-                    
         except Exception as err:
             print(err)
     
@@ -125,40 +124,42 @@ class AlarmService(Thread):
         times_count = 0
         t1 = 0
         while True:
-            if alarm_state:
-                self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 0)
-                alarm_state = 0
-                time.sleep(1)
-                t1 += 1
-            else:
-                self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 1)
-                alarm_state = 1
-                time.sleep(1)
-                t1 += 1
-            if t1 == 2:
-                times_count += 1
-                t1 = 0
-            if times_count >= self.repeat_alarm_times:
-                times_count = 0
-                break
+            if self.alarm_signal_state:
+                if alarm_state:
+                    self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 0)
+                    alarm_state = 0
+                    time.sleep(1)
+                    t1 += 1
+                else:
+                    self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 1)
+                    alarm_state = 1
+                    time.sleep(1)
+                    t1 += 1
+                if t1 == 2:
+                    times_count += 1
+                    t1 = 0
+                if times_count >= self.repeat_alarm_times:
+                    times_count = 0
+                    break
     
     def alarm_periodic(self):
         alarm_state = 0
         t1 = 0
         while True:
-            if alarm_state:
-                self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 0)
-                alarm_state = 0
-                time.sleep(1)
-                t1 += 1
-            else:
-                self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 1)
-                alarm_state = 1
-                time.sleep(1)
-                t1 += 1
-            if t1 == 2:
-                t1 = 0
-                break
+            if self.alarm_signal_state:
+                if alarm_state:
+                    self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 0)
+                    alarm_state = 0
+                    time.sleep(1)
+                    t1 += 1
+                else:
+                    self.set_mqtt_topic_value("/devices/buzzer/controls/enabled/on", 1)
+                    alarm_state = 1
+                    time.sleep(1)
+                    t1 += 1
+                if t1 == 2:
+                    t1 = 0
+                    break
 
 
 def main():

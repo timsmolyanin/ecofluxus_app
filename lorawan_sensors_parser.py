@@ -53,10 +53,8 @@ class LorawanSensorsParser(Thread):
         dict_data = json.loads(topic_val)
         try:
             object_dict = dict_data.get("object")
-            print(object_dict)
             if object_dict:
                 tempc = object_dict.get("TempC_SHT")
-                print(tempc)
                 if tempc:
                     self.set_mqtt_topic_value("/devices/LorawanSensors/controls/Temperature1/on", tempc)
         except:

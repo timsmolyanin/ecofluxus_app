@@ -54,7 +54,7 @@ def calculate_angle(height, length, diameter, airexchange, troom, tout):
     # print(q_set, q)
     air_exch = get_nearest_value(q_set, q)
     air_exch_calc = air_exch[0].real
-    return round(air_exch_calc, 2), ANGLES[air_exch[1]]
+    return round(air_exch_calc, 1), ANGLES[air_exch[1]]
 
 def get_nearest_value(n_value, n_list):
     try:
